@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Message For You</title>
+    <!-- Importing scrap/handwritten fonts: Special Elite for typewriter labels, Caveat for handwriting -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            /* Craft paper dotted background */
+            background-color: #f4eee1; 
+            background-image: radial-gradient(#d5cbb8 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #3b3a36;
+            overflow: hidden; 
+        }
+
+        .font-typewriter { font-family: 'Special Elite', cursive; }
+        .font-handwriting { font-family: 'Caveat', cursive; line-height: 1.4; font-size: 1.5rem; }
+
+        /* Lined paper card effect */
+        .paper-card {
+            background-color: #fffdf8;
+            background-image: linear-gradient(rgba(163, 198, 255, 0.4) 1px, transparent 1px);
+            background-size: 100% 2.5rem; /* Creates the lines */
+            background-position: 0 3.5rem;
+            border: 1px solid #e0d8c8;
+            box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.08), -2px -2px 10px rgba(0, 0, 0, 0.03);
+            transform: rotate(-1deg); /* Slightly crooked for scrapbook feel */
+            position: relative;
+        }
+
+        /* Fake washi/scotch tape elements */
+        .tape {
+            background-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            backdrop-filter: blur(2px);
+            position: absolute;
+            z-index: 25;
+            border-left: 2px dashed rgba(255,255,255,0.8);
+            border-right: 2px dashed rgba(255,255,255,0.8);
+        }
+        
+        /* New Washi Tape Patterns */
+        .tape-dots {
+            background-image: radial-gradient(#e4717a 2px, transparent 2px);
+            background-size: 10px 10px;
+            background-color: rgba(255, 230, 235, 0.9);
+        }
+        .tape-stripes {
+            background: repeating-linear-gradient(45deg, rgba(167, 197, 235, 0.6), rgba(167, 197, 235, 0.6) 5px, rgba(255, 253, 248, 0.8) 5px, rgba(255, 253, 248, 0.8) 10px);
+        }
+        .tape-grid {
+            background-image: linear-gradient(#d4b595 1px, transparent 1px), linear-gradient(90deg, #d4b595 1px, transparent 1px);
+            background-size: 6px 6px;
+            background-color: rgba(255, 253, 248, 0.9);
+        }
+
+        .tape-top { top: -12px; left: 50%; width: 120px; height: 35px; transform: translateX(-50%) rotate(-3deg); }
+        .tape-bottom-left { bottom: 10px; left: -20px; width: 80px; height: 25px; transform: rotate(45deg); }
+        .tape-top-right { top: 15px; right: -20px; width: 80px; height: 25px; transform: rotate(45deg); }
+
+        /* Arts & Crafts Elements */
+        .cardstock-backing {
+            background-color: #d4b595;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            border: 1px solid #c29f79;
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .polaroid {
+            background: #fffdf8;
+            padding: 8px 8px 30px 8px;
+            box-shadow: 2px 4px 15px rgba(0,0,0,0.12);
+            position: absolute;
+            z-index: 20;
+            border: 1px solid #e0d8c8;
+            transform-origin: top left;
+        }
+
+        .sticker {
+            position: absolute;
+            z-index: 30;
+            filter: drop-shadow(1px 3px 3px rgba(0,0,0,0.15));
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            pointer-events: auto; /* Allow hovering even if container is pointer-events-none */
+        }
+        .sticker:hover {
+            transform: scale(1.15) rotate(5deg) !important;
+            z-index: 40;
+        }
+
+        /* Envelope hover animation */
+        .envelope-container {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .envelope-container:hover {
+            transform: translateY(-8px) rotate(2deg);
+        }
+        
+        /* Heartbeat animation for the seal */
+        .heartbeat {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        /* Fade in and slide up for the letter */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px) rotate(5deg);
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0) rotate(-1deg); }
+        }
+
+        /* Floating paper bits (particles) */
+        .particle {
+            position: absolute;
+            background: #e4717a; /* Muted vintage red */
+            pointer-events: none;
+            animation: floatUp linear forwards;
+            z-index: -1;
+            /* Making them look like rough little paper squares/diamonds */
+            transform: rotate(45deg);
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        /* Hide elements gracefully */
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Scrapbook buttons */
+        .btn-scrap {
+            font-family: 'Special Elite', cursive;
+            background-color: #fffdf8;
+            border: 2px solid #3b3a36;
+            box-shadow: 3px 3px 0px #3b3a36;
+            transition: all 0.1s ease;
+        }
+        .btn-scrap:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #3b3a36;
+        }
+        .btn-scrap-primary {
+            background-color: #e4717a;
+            color: #fffdf8;
+            border-color: #3b3a36;
+        }
+
+        /* Custom Scrollbar for Letter Content */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d4b595;
+            border-radius: 10px;
+            border: 2px solid #fffdf8;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #c29f79;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative w-full h-full">
+
+    <!-- BACKGROUND STICKERS ACROSS THE ENTIRE WEBSITE -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <!-- Top Left Star -->
+        <div class="sticker opacity-80" style="top: 8%; left: 6%; transform: rotate(-15deg);">
+            <svg width="60" height="60" viewBox="0 0 100 100">
+                <path d="M50 5 L62 35 L95 35 L68 55 L78 88 L50 70 L22 88 L32 55 L5 35 L38 35 Z" fill="white" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+                <path d="M50 10 L60 38 L90 38 L65 55 L75 85 L50 70 L25 85 L35 55 L10 38 L40 38 Z" fill="#fbbf24" />
+            </svg>
+        </div>
+        <!-- Top Right Heart -->
+        <div class="sticker opacity-80 hidden sm:block" style="top: 12%; right: 8%; transform: rotate(20deg);">
+            <svg width="50" height="50" viewBox="0 0 100 100">
+                <path d="M50 85 C20 55, 10 30, 25 15 C35 5, 50 20, 50 20 C50 20, 65 5, 75 15 C90 30, 80 55, 50 85 Z" fill="white" stroke="white" stroke-width="10" stroke-linejoin="round"/>
+                <path d="M50 80 C25 55, 15 35, 25 20 C35 10, 50 25, 50 25 C50 25, 65 10, 75 20 C85 35, 75 55, 50 80 Z" fill="#f472b6" />
+            </svg>
+        </div>
+        <!-- Middle Left Daisy -->
+        <div class="sticker opacity-80 hidden md:block" style="top: 45%; left: 4%; transform: rotate(-10deg) scale(0.8);">
+            <svg width="70" height="70" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#ffffff" />
+                <circle cx="50" cy="25" r="18" fill="#bae6fd" />
+                <circle cx="50" cy="75" r="18" fill="#bae6fd" />
+                <circle cx="25" cy="50" r="18" fill="#bae6fd" />
+                <circle cx="75" cy="50" r="18" fill="#bae6fd" />
+                <circle cx="32" cy="32" r="18" fill="#bae6fd" />
+                <circle cx="68" cy="68" r="18" fill="#bae6fd" />
+                <circle cx="32" cy="68" r="18" fill="#bae6fd" />
+                <circle cx="68" cy="32" r="18" fill="#bae6fd" />
+                <circle cx="50" cy="50" r="15" fill="#fde047" />
+            </svg>
+        </div>
+        <!-- Middle Right Star -->
+        <div class="sticker opacity-80" style="top: 60%; right: 5%; transform: rotate(35deg) scale(0.7);">
+            <svg width="60" height="60" viewBox="0 0 100 100">
+                <path d="M50 5 L62 35 L95 35 L68 55 L78 88 L50 70 L22 88 L32 55 L5 35 L38 35 Z" fill="white" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+                <path d="M50 10 L60 38 L90 38 L65 55 L75 85 L50 70 L25 85 L35 55 L10 38 L40 38 Z" fill="#34d399" />
+            </svg>
+        </div>
+        <!-- Bottom Left Heart -->
+        <div class="sticker opacity-80" style="bottom: 10%; left: 10%; transform: rotate(-25deg) scale(0.9);">
+            <svg width="55" height="55" viewBox="0 0 100 100">
+                <path d="M50 85 C20 55, 10 30, 25 15 C35 5, 50 20, 50 20 C50 20, 65 5, 75 15 C90 30, 80 55, 50 85 Z" fill="white" stroke="white" stroke-width="10" stroke-linejoin="round"/>
+                <path d="M50 80 C25 55, 15 35, 25 20 C35 10, 50 25, 50 25 C50 25, 65 10, 75 20 C85 35, 75 55, 50 80 Z" fill="#e4717a" />
+            </svg>
+        </div>
+        <!-- Bottom Right Daisy -->
+        <div class="sticker opacity-80 hidden sm:block" style="bottom: 15%; right: 12%; transform: rotate(15deg) scale(0.85);">
+            <svg width="65" height="65" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#ffffff" />
+                <circle cx="50" cy="25" r="18" fill="#d9f99d" />
+                <circle cx="50" cy="75" r="18" fill="#d9f99d" />
+                <circle cx="25" cy="50" r="18" fill="#d9f99d" />
+                <circle cx="75" cy="50" r="18" fill="#d9f99d" />
+                <circle cx="32" cy="32" r="18" fill="#d9f99d" />
+                <circle cx="68" cy="68" r="18" fill="#d9f99d" />
+                <circle cx="32" cy="68" r="18" fill="#d9f99d" />
+                <circle cx="68" cy="32" r="18" fill="#d9f99d" />
+                <circle cx="50" cy="50" r="15" fill="#fde047" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Container for dynamic background paper bits -->
+    <div id="particle-container" class="absolute inset-0 z-0 pointer-events-none hidden"></div>
+
+    <!-- SCREEN 0: Splash Screen -->
+    <div id="splash-screen" class="z-50 absolute inset-0 flex flex-col items-center justify-center bg-transparent transition-opacity duration-700">
+        <div class="text-center animate-fade-in-up">
+            
+            <!-- Cutout style "A LETTER TO" -->
+            <div class="flex justify-center items-center gap-1 mb-4 flex-wrap z-10 relative mt-4">
+               <span class="inline-block bg-[#fffdf8] text-slate-800 px-2 py-1 text-sm border border-slate-300 transform -rotate-3 font-typewriter font-bold shadow-sm">A</span>
+               <span class="inline-block w-2"></span>
+               <span class="inline-block bg-slate-800 text-white px-2 py-1 text-sm transform rotate-3 font-sans font-bold shadow-sm">L</span>
+               <span class="inline-block bg-[#e4717a] text-white px-2 py-1 text-sm transform -rotate-2 font-serif font-bold shadow-sm">E</span>
+               <span class="inline-block bg-[#fde047] text-slate-800 px-2 py-1 text-sm border border-[#facc15] transform rotate-6 font-typewriter font-bold shadow-sm">T</span>
+               <span class="inline-block bg-[#fffdf8] text-blue-800 px-2 py-1 text-sm border-2 border-blue-200 transform -rotate-1 font-sans font-bold shadow-sm">T</span>
+               <span class="inline-block bg-slate-300 text-slate-800 px-2 py-1 text-sm transform rotate-2 font-serif font-bold shadow-sm">E</span>
+               <span class="inline-block bg-rose-200 text-rose-900 px-2 py-1 text-lg border border-rose-400 transform -rotate-6 font-handwriting shadow-sm">R</span>
+               <span class="inline-block w-2"></span>
+               <span class="inline-block bg-[#fffdf8] text-slate-900 px-2 py-1 text-sm border border-slate-400 transform rotate-3 font-sans font-bold shadow-sm">T</span>
+               <span class="inline-block bg-[#34d399] text-white px-2 py-1 text-sm transform -rotate-3 font-serif font-bold shadow-sm">O</span>
+            </div>
+
+            <!-- Cutout style "VANESSA" -->
+            <div class="flex flex-wrap justify-center items-center gap-1 sm:gap-2 mb-10 relative z-10">
+                <span class="inline-block px-3 py-1 bg-[#fffdf8] text-slate-800 font-serif text-5xl sm:text-6xl font-bold border border-slate-300 shadow-md transform -rotate-6">V</span>
+                <span class="inline-block px-4 py-2 bg-[#e4717a] text-white font-sans text-4xl sm:text-5xl font-black shadow-md transform rotate-3">A</span>
+                <span class="inline-block px-3 py-1 bg-[#3b3a36] text-white font-typewriter text-5xl sm:text-6xl shadow-md transform -rotate-2">N</span>
+                <span class="inline-block px-2 py-3 bg-[#fde047] text-slate-800 font-handwriting text-6xl sm:text-7xl shadow-md border border-[#facc15] transform rotate-6">E</span>
+                <span class="inline-block px-3 py-2 bg-[#bae6fd] text-[#0c4a6e] font-serif text-4xl sm:text-5xl font-bold shadow-md transform -rotate-3 border border-[#7dd3fc]">S</span>
+                <span class="inline-block px-4 py-1 bg-[#fffdf8] text-[#e4717a] font-sans text-5xl sm:text-6xl font-black border-2 border-dashed border-[#fda4af] shadow-md transform rotate-2">S</span>
+                <span class="inline-block px-3 py-2 bg-[#94a3b8] text-white font-typewriter text-4xl sm:text-5xl shadow-md transform -rotate-6">A</span>
+            </div>
+
+            <button onclick="startExperience()" class="btn-scrap px-8 py-3 rounded-sm text-slate-700 font-bold font-typewriter text-lg tracking-widest transition-all hover:-translate-y-1 hover:bg-[#e4717a] hover:text-[#fffdf8] relative z-20">
+                UNFOLD
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 1: The Envelope -->
+    <div id="intro-screen" class="z-10 flex flex-col items-center justify-center p-6 text-center" style="display: none;">
+        <!-- Handwritten sticky note style prompt -->
+        <div class="font-handwriting text-2xl text-slate-700 mb-6 transform -rotate-3">
+            I made something for you...
+        </div>
+        
+        <div class="envelope-container relative" onclick="openLetter()">
+            <!-- Custom SVG Kraft Envelope Asset -->
+            <svg width="200" height="130" viewBox="0 0 200 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Drop shadow -->
+                <rect x="6" y="6" width="190" height="120" fill="rgba(0,0,0,0.1)" rx="2" />
+                <!-- Envelope Body (Kraft paper color) -->
+                <rect x="2" y="2" width="190" height="120" rx="2" fill="#d4b595" stroke="#a68461" stroke-width="3"/>
+                <!-- Bottom Flap -->
+                <path d="M2 122L100 65L192 122" stroke="#a68461" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Top Flap -->
+                <path d="M2 2L100 75L192 2" fill="#e3cba8" stroke="#a68461" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Wax Seal (Vintage Red Heart) -->
+                <g class="heartbeat" transform="translate(85, 55)">
+                    <!-- Wax blob base -->
+                    <path d="M12 0C18 1 23 4 25 10C27 16 23 23 18 26C12 29 4 27 1 20C-2 13 1 6 6 2C8 1 10 0 12 0Z" fill="#8b1e28"/>
+                    <path d="M12 2C16 3 20 5 21 10C22 15 19 20 15 22C11 24 6 22 4 17C2 12 5 7 8 4C9 3 10 2 12 2Z" fill="#a82b37"/>
+                    <!-- Stamp indent -->
+                    <path d="M15 17.5C15 17.5 7.5 11.5 7.5 6.25C7.5 3.76472 9.51472 1.75 12 1.75C13.407 1.75 14.6611 2.40487 15 3.44199C15.3389 2.40487 16.593 1.75 18 1.75C20.4853 1.75 22.5 3.76472 22.5 6.25C22.5 11.5 15 17.5 15 17.5Z" fill="#70151f" transform="translate(-2.5, 3) scale(0.8)"/>
+                </g>
+            </svg>
+        </div>
+        
+        <p class="mt-8 text-slate-500 font-typewriter text-xs uppercase tracking-widest">Tap to open</p>
+    </div>
+
+    <!-- SCREEN 2: The Letter -->
+    <div id="letter-screen" class="z-10 hidden w-full max-w-2xl p-4 sm:p-8 relative mt-6">
+        
+        <!-- Cardstock backing layer -->
+        <div class="cardstock-backing absolute inset-4 sm:inset-8 rotate-1 rounded-sm z-0 hidden sm:block"></div>
+
+        <div class="paper-card rounded-sm p-8 sm:p-12 relative z-10 mx-auto">
+            
+            <!-- Polaroid Element tucked behind - Position updated to avoid text overlap -->
+            <div class="polaroid absolute z-20 -top-8 -left-4 sm:-top-10 sm:-left-[70px] -rotate-[8deg] sm:-rotate-[12deg] scale-90 sm:scale-100 origin-top-left">
+                <div class="tape tape-stripes" style="top: -10px; left: 30px; width: 60px; height: 20px; transform: rotate(5deg);"></div>
+                <div class="bg-slate-200 w-24 h-24 flex items-center justify-center border border-slate-300 relative overflow-hidden">
+                    <!-- Cute Coffee Doodle -->
+                    <svg width="50" height="50" viewBox="0 0 100 100" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 30 H70 V70 C70 80 60 90 45 90 C30 90 20 80 20 70 Z" fill="#f8fafc"/>
+                        <path d="M70 40 H80 C85 40 90 45 90 50 C90 55 85 60 80 60 H70" />
+                        <path d="M35 15 Q40 5 45 15 T55 15" stroke="#94a3b8" />
+                        <path d="M50 15 Q55 5 60 15 T70 15" stroke="#94a3b8" />
+                        <path d="M40 50 C40 50 45 55 50 50" stroke="#e4717a" stroke-width="6"/> <!-- little smile -->
+                    </svg>
+                </div>
+                <div class="font-handwriting text-sm mt-3 text-center text-slate-600 font-bold transform -rotate-2">Coffee soon?</div>
+            </div>
+
+            <!-- Stickers on the Letter -->
+            <!-- Daisy Sticker -->
+            <div class="sticker" style="bottom: 40px; right: -25px; transform: rotate(15deg);">
+                <svg width="60" height="60" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="#ffffff" />
+                    <circle cx="50" cy="25" r="18" fill="#fbcfe8" />
+                    <circle cx="50" cy="75" r="18" fill="#fbcfe8" />
+                    <circle cx="25" cy="50" r="18" fill="#fbcfe8" />
+                    <circle cx="75" cy="50" r="18" fill="#fbcfe8" />
+                    <circle cx="32" cy="32" r="18" fill="#fbcfe8" />
+                    <circle cx="68" cy="68" r="18" fill="#fbcfe8" />
+                    <circle cx="32" cy="68" r="18" fill="#fbcfe8" />
+                    <circle cx="68" cy="32" r="18" fill="#fbcfe8" />
+                    <circle cx="50" cy="50" r="15" fill="#fde047" />
+                </svg>
+            </div>
+
+            <!-- Golden Star Sticker -->
+            <div class="sticker hidden sm:block" style="top: 30px; right: -20px; transform: rotate(-12deg);">
+                <svg width="55" height="55" viewBox="0 0 100 100">
+                    <path d="M50 5 L62 35 L95 35 L68 55 L78 88 L50 70 L22 88 L32 55 L5 35 L38 35 Z" fill="white" stroke="white" stroke-width="10" stroke-linejoin="round"/>
+                    <path d="M50 10 L60 38 L90 38 L65 55 L75 85 L50 70 L25 85 L35 55 L10 38 L40 38 Z" fill="#fbbf24" />
+                </svg>
+            </div>
+
+            <!-- Heart Doodle Sticker -->
+            <div class="sticker" style="bottom: -15px; left: 30%; transform: rotate(-8deg);">
+                <svg width="45" height="45" viewBox="0 0 100 100">
+                    <path d="M50 85 C20 55, 10 30, 25 15 C35 5, 50 20, 50 20 C50 20, 65 5, 75 15 C90 30, 80 55, 50 85 Z" fill="white" stroke="white" stroke-width="12" stroke-linejoin="round"/>
+                    <path d="M50 80 C25 55, 15 35, 25 20 C35 10, 50 25, 50 25 C50 25, 65 10, 75 20 C85 35, 75 55, 50 80 Z" fill="#e4717a" />
+                </svg>
+            </div>
+
+            <!-- Tape Elements -->
+            <div class="tape tape-dots tape-top"></div>
+            <div class="tape tape-grid tape-bottom-left"></div>
+            <div class="tape tape-stripes tape-top-right"></div>
+
+            <!-- Typed header label (Added top margin to sit below the polaroid safely) -->
+            <div class="font-typewriter text-sm mb-6 pb-2 border-b-2 border-slate-300 inline-block text-slate-600 mt-12 sm:mt-0 ml-6 sm:ml-0 relative z-10">
+                To: <span class="text-slate-800">Vanessa</span>
+            </div>
+
+            <!-- Handwritten content (Scrollable container added) -->
+            <div class="font-handwriting text-slate-800 space-y-4 px-2 sm:px-4 relative z-10 custom-scrollbar max-h-[45vh] sm:max-h-[50vh] overflow-y-auto pr-3 sm:pr-4 pb-4">
+                <p>
+                    Hi Van, gusto ko lang maging honest sa'yo. Hindi random itong nararamdaman ko—actually, matagal na kitang gusto. Dati, pinigilan ko lang kasi iniisip ko yung naging past ninyo ng kaibigan ko. Naisip ko nun na baka mali, kaya I chose to keep it to myself. Mas pinili ko 'yung maging friends na lang muna tayo tapos mga random chats lang. Nakakatawa rin kasi yung mga chismisan natin minsan, parang ewan hahaha, baka karmahin pa tayo niyan.
+                </p>
+                <p>
+                    Pero ayun, fast forward to 2026, alam mo naman yung pinagdaanan ng family namin. I really appreciate na nandiyan ka para sa akin nung mga times na 'yun. Dun siguro nag-spark ulit yung feelings ko. But this time, mas matured na ako. Narealize ko na nothing is permanent in this world, kaya I don't want to lose the chance by staying silent. Wala na akong pakialam sa sasabihin ng iba.
+                </p>
+                <p>
+                    Gusto ko lang din i-clarify na hindi kita nagustuhan dahil lang sa vulnerable ako lately. It’s been on my mind for two months now, and pinag-isipan ko talaga 'to. I want to court you, let me know what you think.
+                </p>
+                <p class="text-slate-500 text-[1.2rem] mt-4 transform rotate-1">
+                    (Absolutely no pressure on your end. Gusto ko lang masabi haha.)
+                </p>
+            </div>
+
+            <!-- Interactive Response Area -->
+            <div id="response-area" class="mt-8 flex flex-col sm:flex-row gap-5 justify-center font-typewriter text-sm sm:px-8 relative z-20">
+                <button onclick="handleResponse('yes')" class="btn-scrap btn-scrap-primary px-6 py-3 rounded-sm flex-1 text-center font-bold">
+                    I'd love that!
+                </button>
+                <button onclick="handleResponse('think')" class="btn-scrap px-6 py-3 rounded-sm text-slate-700 flex-1 text-center font-bold">
+                    Let's talk about it
+                </button>
+            </div>
+
+            <!-- Hidden Message shown after click -->
+            <div id="final-message" class="mt-10 text-center hidden animate-fade-in-up relative z-20">
+                <!-- Message injected via JS -->
+            </div>
+
+            <!-- Footer date -->
+            <div class="mt-12 text-right font-typewriter text-xl text-slate-600 font-bold relative z-10 mr-4 transform -rotate-2">
+                - L.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Transition from Splash to Envelope
+        function startExperience() {
+            const splash = document.getElementById('splash-screen');
+            const intro = document.getElementById('intro-screen');
+            
+            splash.classList.add('fade-out');
+            
+            setTimeout(() => {
+                splash.style.display = 'none';
+                intro.style.display = 'flex';
+                intro.classList.add('animate-fade-in-up');
+            }, 500);
+        }
+
+        // Transition from Envelope to Letter
+        function openLetter() {
+            const intro = document.getElementById('intro-screen');
+            const letter = document.getElementById('letter-screen');
+            const particles = document.getElementById('particle-container');
+
+            // Fade out intro
+            intro.classList.add('fade-out');
+            
+            setTimeout(() => {
+                intro.style.display = 'none';
+                // Show letter and particles
+                letter.classList.remove('hidden');
+                letter.classList.add('animate-fade-in-up');
+                particles.classList.remove('hidden');
+                startParticles();
+            }, 500);
+        }
+
+        // Handle button clicks
+        function handleResponse(type) {
+            const buttons = document.getElementById('response-area');
+            const finalMessage = document.getElementById('final-message');
+            
+            buttons.classList.add('fade-out');
+            
+            setTimeout(() => {
+                buttons.style.display = 'none';
+                finalMessage.style.display = 'block';
+                
+                if (type === 'yes') {
+                    finalMessage.innerHTML = "<div class='font-typewriter font-bold text-slate-700 uppercase tracking-widest text-xs mb-2'>System update: Success</div> <div class='font-handwriting text-2xl text-rose-600'>That makes me really happy! <br> Let's grab that coffee soon.</div>";
+                } else {
+                    finalMessage.innerHTML = "<div class='font-typewriter font-bold text-slate-700 uppercase tracking-widest text-xs mb-2'>System update: Received</div> <div class='font-handwriting text-2xl text-slate-700'>Thank you for being so cool about it. <br> Take all the time you need!</div>";
+                }
+            }, 500);
+        }
+
+        // Generate ambient floating paper bits
+        function startParticles() {
+            const container = document.getElementById('particle-container');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                createParticle(container);
+            }
+
+            setInterval(() => {
+                createParticle(container);
+            }, 2500);
+        }
+
+        function createParticle(container) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Randomize size, position, and duration
+            const size = Math.random() * 8 + 4; // 4px to 12px
+            const left = Math.random() * 100; // 0% to 100%
+            const duration = Math.random() * 12 + 8; // 8s to 20s
+            const delay = Math.random() * 3; // 0s to 3s
+
+            // Mix up the colors of the confetti/paper bits
+            const colors = ['#e4717a', '#d4b595', '#a68461', '#8b1e28'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${left}vw`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+
+            container.appendChild(particle);
+
+            // Clean up particle after animation ends
+            setTimeout(() => {
+                particle.remove();
+            }, (duration + delay) * 1000);
+        }
+    </script>
+</body>
+</html>
